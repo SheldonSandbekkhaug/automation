@@ -1,4 +1,5 @@
 Author: Sheldon Sandbekkhaug
+
 Written September 2013
 
 test_5bit.py is a tool to test 5bit, a C encryption program. When given a file
