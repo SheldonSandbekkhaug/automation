@@ -99,7 +99,7 @@ def test_file(filepath, quiet):
     try:
         subprocess.check_call(shlex.split(compare_command))
     except subprocess.CalledProcessError:
-        print("File FAILED: " + filepath)
+        print("FILE FAILED: " + filepath)
     else:
         # Don't print anything if we're quiet
         if quiet:
