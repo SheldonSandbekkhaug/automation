@@ -1,15 +1,14 @@
 #!/usr/bin/env python
 
-""" A tool to automate testing of an L-language parser. It compares the
-output of your parser with the reference parser for every file in the
+""" A tool to automate testing of an L-language lexer. It compares the
+output of your parser with the reference lexer for every file in the
 specified directory (and its subdirectories).
 
-Before running, put l-interpreter (the reference interpreter) 
-and your parser in this directory.
+Before running, put the reference lexer and your lexer in this directory.
 
 Usage:
 
-./testParser.py -f DIRECTORY_OR_FILE
+./testLexer.py -f DIRECTORY_OR_FILE
 
 """
 
@@ -21,8 +20,9 @@ import tempfile
 import subprocess
 
 
-binary_name = "parser"
-correct_program = "l-interpreter -ast"
+binary_name = "lexer"
+correct_lexer = "correct_lexer"
+
 
 def main():
     """ Get args from the command line and run the tests. """
@@ -84,30 +84,13 @@ def test_file(filepath, quiet):
     encode_command = binary_name + " " + filepath
     subprocess.call(shlex.split(encode_command), stdout=our_output)
 
+
     # Decode our_output using the program and store the results in their_output
-    decode_command = correct_program + " " + filepath
+    decode_command = correct_lexer + " " + filepath
     subprocess.call(shlex.split(decode_command), stdout=their_output)
-
-    # Temporary file for the AST
-    ast_file, ast_file_path = tempfile.mkstemp()
     
-    # Get the AST from the correct parser's output
-    saw_stars = False
-    with open(their_output_path, 'r') as parser_output:
-      with open(ast_file_path, 'w') as ast_file_open:
-        for line in parser_output:
-          if (line == "*****************************************\n"):
-            ast_file_open.write(line)
-            saw_stars = True
-           # Handle the "error case" discrepancy
-          elif ("syntax error" in line):
-              ast_file_open.write(line)
-              ast_file_open.write("Parse result NULL\n")
-          elif (saw_stars == False):
-            ast_file_open.write(line)
-
     # Compare the decoded and original files
-    compare_command = "cmp " + our_output_path + " " + ast_file_path
+    compare_command = "cmp " + our_output_path + " " + their_output_path
 
     # Check the return code of the comparison
     try:
@@ -124,7 +107,6 @@ def test_file(filepath, quiet):
     # Remove the temporary files since we're done with them
     os.remove(our_output_path)
     os.remove(their_output_path)
-    os.remove(ast_file_path)
 
 
 main()
